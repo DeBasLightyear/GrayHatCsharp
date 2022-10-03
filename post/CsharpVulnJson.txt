@@ -1,0 +1,14 @@
+POST /Vulnerable.ashx HTTP/1.1
+Host: 192.168.2.29
+Content-Length: 215
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.5249.62 Safari/537.36
+Content-Type: application/json; charset=UTF-8
+Accept: */*
+Origin: http://192.168.2.29
+Referer: http://192.168.2.29/
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US,en;q=0.9
+Cookie: ASP.NET_SessionId=239F186F4EDDDEA3078D4053
+Connection: close
+
+{"username":"Foo","password":"12345abc","age":23,"line1":"Foobar Lane 21","line2":"Wololo lane 12","city":"MonneyVille","state":"Kazachstan","zip":123456,"first":"Foo","middle":"bar","last":"Barz","method":"create"}
