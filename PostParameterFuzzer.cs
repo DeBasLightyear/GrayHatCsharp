@@ -2,43 +2,35 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 
-class PostFuzzer
+class PostParameterFuzzer
 {
-    public string Host;
-    public string Request;
-    public string[] Parameters;
-    private string[] RequestLines;
+    public string[] RequestLines;
 
-    public PostFuzzer(string pathToFile)
+    public PostParameterFuzzer(string pathToFile)
     {
         // read the request file
         RequestLines = File.ReadAllLines(pathToFile);
-        Request = String.Join('\n', RequestLines);
-
-        // get the parameters and the host
-        Parameters = RequestLines.Last().Split('&');
-        Host = RequestLines
-            .Where(line => line.StartsWith("Host:"))
-            .Select(line => line.Split(' ')[1].Replace("\r", string.Empty))
-            .First();
     }
-
 
     public IEnumerable<string?> FuzzParameters()
     {
-        var remoteHost = new IPEndPoint(IPAddress.Parse(Host), 80);
+        // prepare the connection to the remote host
+        var hostAddress = RequestLines
+            .Where(line => line.StartsWith("Host:"))
+            .Select(line => line.Split(' ')[1].Replace("\r", string.Empty))
+            .First();
+        var remoteHost = new IPEndPoint(IPAddress.Parse(hostAddress), 80);
 
-        return Parameters
-            .Select(parameter => FuzzParameter(remoteHost, parameter))
+        // get the request and its separate parameters
+        var parameters = RequestLines.Last().Split('&');
+        var request = String.Join('\n', RequestLines);
+
+        return parameters
+            .Select(parameter => FuzzParameter(remoteHost, parameter, request))
             .Where(result => result != null);
     }
 
-    public IEnumerable<string?> FuzzJson()
-    {
-        return new [] {"foo"};
-    }
-
-    private string? FuzzParameter(IPEndPoint remoteHost, string parameter)
+    private string? FuzzParameter(IPEndPoint remoteHost, string parameter, string request)
     {
         using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
         {
@@ -48,7 +40,7 @@ class PostFuzzer
             // malform the request
             var value = parameter.Split('=')[1];
             var fuzzedValue = value + "'";
-            var fuzzedRequest = Request.Replace("=" + value, "=" + value + "'");
+            var fuzzedRequest = request.Replace("=" + value, "=" + value + "'");
 
             // convert the string to a byte array and send it over
             var requestBytes = Encoding.ASCII.GetBytes(fuzzedRequest);

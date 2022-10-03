@@ -2,13 +2,6 @@
 string url = args[0];
 string pathToFile = args[1];
 
-// fuzz GET requests
-var sqlFuzzer = new GetFuzzer("SQL injection", "fd'sa", "SQL syntax");
-var xssFuzzer = new GetFuzzer("XSS", "fd<xss>sa", "<xss>");
-
-var sqlInjectionPoints = await sqlFuzzer.Fuzz(url);
-var xssPoints = await xssFuzzer.Fuzz(url);
-
 var logItems = delegate (IEnumerable<string?> items)
 {
     if (items.Count() == 0)
@@ -23,6 +16,13 @@ var logItems = delegate (IEnumerable<string?> items)
     }
 };
 
+// fuzz GET requests
+var sqlFuzzer = new GetFuzzer("SQL injection", "fd'sa", "SQL syntax");
+var xssFuzzer = new GetFuzzer("XSS", "fd<xss>sa", "<xss>");
+
+var sqlInjectionPoints = await sqlFuzzer.Fuzz(url);
+var xssPoints = await xssFuzzer.Fuzz(url);
+
 Console.WriteLine("SQL injection:");
 logItems(sqlInjectionPoints);
 
@@ -31,12 +31,18 @@ logItems(xssPoints);
 
 
 // fuzz a POST requests with parameters
-var postFuzzer = new PostFuzzer(pathToFile);
+var postParameterFuzzer = new PostParameterFuzzer(pathToFile);
 
-Console.WriteLine("\nPOST request:");
-var postPoints = postFuzzer.FuzzParameters();
+Console.WriteLine("\nPOST request with parameters:");
+var postParameterPoints = postParameterFuzzer.FuzzParameters();
 
-logItems(postPoints);
+logItems(postParameterPoints);
 
 // fuzz a POST with JSON
+// var postJsonFuzzer = new PostFuzzer(pathToFile);
+
+// Console.WriteLine("\nPOST request with JSON:");
+// var postJsonPoints = postJsonFuzzer.FuzzJson();
+
+// logItems(postJsonPoints);
 
