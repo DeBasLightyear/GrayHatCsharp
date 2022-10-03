@@ -12,7 +12,7 @@ class PostParameterFuzzer
         RequestLines = File.ReadAllLines(pathToFile);
     }
 
-    public IEnumerable<string?> FuzzParameters()
+    public IEnumerable<string?> Fuzz()
     {
         // prepare the connection to the remote host
         var hostAddress = RequestLines
